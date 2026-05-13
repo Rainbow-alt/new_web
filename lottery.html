@@ -47,7 +47,7 @@
             box-shadow: 0 8px 40px rgba(200, 150, 180, 0.22), 0 0 80px rgba(200, 180, 210, 0.12);
             padding: 40px 44px;
             text-align: center;
-            max-width: 500px;
+            max-width: 520px;
             width: 100%;
             animation: cardFloat 6s ease-in-out infinite;
         }
@@ -68,42 +68,66 @@
             font-size: 15px;
             color: #c090a0;
             letter-spacing: 2px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
-        .wheel-wrapper {
+        .wheel-container {
             position: relative;
-            display: inline-block;
-            margin: 0 auto 20px;
+            width: 340px;
+            height: 340px;
+            margin: 0 auto 24px;
         }
 
-        .pointer {
+        .pointer-mark {
             position: absolute;
-            top: -8px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 2;
+            z-index: 3;
             width: 0;
             height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-top: 28px solid #ff6b8a;
-            filter: drop-shadow(0 2px 4px rgba(200, 100, 130, 0.5));
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 32px solid #ff6b8a;
+            filter: drop-shadow(0 3px 5px rgba(200, 100, 130, 0.5));
         }
-        .pointer::after {
-            content: '';
+        .pointer-dot {
             position: absolute;
-            top: -34px;
-            left: -6px;
-            width: 12px;
-            height: 12px;
+            top: -42px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            width: 14px;
+            height: 14px;
             background: #ff6b8a;
             border-radius: 50%;
+            box-shadow: 0 0 8px rgba(255, 107, 138, 0.6);
         }
 
         #wheelCanvas {
             border-radius: 50%;
-            box-shadow: 0 0 0 8px rgba(255, 180, 200, 0.35), 0 0 0 16px rgba(255, 200, 210, 0.18), 0 4px 30px rgba(200, 150, 170, 0.3);
+            box-shadow:
+                0 0 0 10px rgba(255, 185, 205, 0.35),
+                0 0 0 22px rgba(255, 205, 215, 0.18),
+                0 4px 30px rgba(200, 150, 170, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .prize-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 16px;
+            margin-bottom: 20px;
+        }
+        .prize-tag {
+            font-size: 13px;
+            color: #a07080;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 4px 12px;
+            border-radius: 14px;
+            letter-spacing: 1px;
         }
 
         .btn-spin {
@@ -163,7 +187,7 @@
             to { opacity: 1; }
         }
 
-        .modal {
+        .modal-box {
             background: #fff;
             border-radius: 24px;
             padding: 36px 32px;
@@ -209,7 +233,7 @@
             transition: border-color 0.2s;
         }
         .modal-input:focus { border-color: #ff8a9e; }
-        .modal-input.wrong {
+        .modal-input.shake {
             border-color: #ff6b6b;
             animation: shake 0.5s;
         }
@@ -252,21 +276,21 @@
         }
 
         @media (max-width: 500px) {
-            .card { padding: 28px 18px; border-radius: 20px; }
+            .card { padding: 28px 16px; border-radius: 20px; }
             .title { font-size: 26px; }
+            .wheel-container { width: 280px; height: 280px; }
             #wheelCanvas { width: 280px; height: 280px; }
-            .pointer {
-                border-left-width: 14px;
-                border-right-width: 14px;
-                border-top-width: 22px;
-                top: -5px;
+            .pointer-mark {
+                border-left-width: 16px;
+                border-right-width: 16px;
+                border-top-width: 26px;
+                top: -8px;
             }
-            .pointer::after {
-                width: 10px; height: 10px;
-                top: -28px; left: -5px;
+            .pointer-dot {
+                width: 12px; height: 12px; top: -34px;
             }
             .btn-spin { padding: 12px 36px; font-size: 17px; }
-            .modal { padding: 28px 20px; }
+            .modal-box { padding: 28px 20px; }
         }
     </style>
 </head>
@@ -278,23 +302,28 @@
             <div class="title">🎀 幸运大转盘 🎀</div>
             <div class="subtitle">小玉玉的专属抽奖</div>
 
-            <div class="wheel-wrapper">
-                <div class="pointer"></div>
-                <canvas id="wheelCanvas" width="340" height="340"></canvas>
+            <div class="wheel-container">
+                <div class="pointer-dot"></div>
+                <div class="pointer-mark"></div>
+                <canvas ref="wheelCanvas" id="wheelCanvas" width="340" height="340"></canvas>
+            </div>
+
+            <div class="prize-list">
+                <span class="prize-tag" v-for="p in prizes" :key="p.label">{{ p.icon }} {{ p.label }}</span>
             </div>
 
             <button class="btn-spin" @click="startSpin" :disabled="spinning">
-                {{ spinning ? '转动中...' : '🎯 开始抽奖' }}
+                {{ spinning ? '🎰 转动中...' : '🎯 开始抽奖' }}
             </button>
 
-            <div style="margin-top:14px;">
+            <div style="margin-top:16px;">
                 <a href="index.html" class="back-link">← 返回主页</a>
             </div>
         </div>
 
         <!-- Question Modal -->
-        <div class="modal-overlay" v-if="showQuestion" @click.self="() => {}">
-            <div class="modal">
+        <div class="modal-overlay" v-if="showQuestion">
+            <div class="modal-box">
                 <div class="modal-icon">🎁</div>
                 <div class="modal-title">恭喜抽中 佳能相机大礼包！</div>
                 <div class="modal-desc">
@@ -305,10 +334,11 @@
                 </div>
                 <input
                     class="modal-input"
-                    :class="{ wrong: showWrong }"
+                    :class="{ shake: showWrong }"
                     v-model="answer"
                     placeholder="请输入你的答案"
                     @keyup.enter="checkAnswer"
+                    ref="answerInput"
                 />
                 <div class="wrong-msg" v-if="showWrong">不对哦，再想想~ 💭</div>
                 <button class="modal-btn" @click="checkAnswer">确认提交</button>
@@ -317,7 +347,7 @@
 
         <!-- Congratulations Modal -->
         <div class="modal-overlay" v-if="showCongrats">
-            <div class="modal">
+            <div class="modal-box">
                 <div class="modal-icon">🎉</div>
                 <div class="modal-title">恭喜你获得大奖！</div>
                 <div class="modal-desc">
@@ -330,7 +360,7 @@
         </div>
     </div>
 
-    <!-- Cherry blossom animation -->
+    <!-- Cherry blossom animation (independent of Vue) -->
     <script>
         (function() {
             const canvas = document.getElementById('petalCanvas');
@@ -462,87 +492,11 @@
             { label: '幸运星', icon: '⭐' },
         ];
         const segColors = [
-            '#FFD4D4', '#FFE4D0', '#FFF5D4', '#D4F0D4',
+            '#FFD4D4', '#FFE4D0', '#FFF6D4', '#D4F0D4',
             '#D4E4F0', '#E8D4F0', '#F0D4E4', '#F8F0D4',
         ];
         const TARGET_INDEX = 3;
         const SEG_ANGLE = (2 * Math.PI) / prizes.length;
-
-        const wheelCanvas = document.getElementById('wheelCanvas');
-        const wctx = wheelCanvas.getContext('2d');
-        const SIZE = wheelCanvas.width;
-        const CX = SIZE / 2;
-        const CY = SIZE / 2;
-        const RADIUS = SIZE / 2 - 6;
-
-        let angle = 0;
-
-        function drawWheel() {
-            wctx.clearRect(0, 0, SIZE, SIZE);
-
-            // Outer ring shadow
-            wctx.save();
-            wctx.beginPath();
-            wctx.arc(CX, CY, RADIUS + 4, 0, 2 * Math.PI);
-            wctx.fillStyle = 'rgba(255,200,210,0.25)';
-            wctx.fill();
-            wctx.restore();
-
-            // Draw segments
-            for (let i = 0; i < prizes.length; i++) {
-                const startA = angle + i * SEG_ANGLE - Math.PI / 2;
-                const endA = startA + SEG_ANGLE;
-
-                wctx.save();
-                wctx.beginPath();
-                wctx.moveTo(CX, CY);
-                wctx.arc(CX, CY, RADIUS, startA, endA);
-                wctx.closePath();
-                wctx.fillStyle = segColors[i];
-                wctx.fill();
-                wctx.strokeStyle = 'rgba(255,255,255,0.7)';
-                wctx.lineWidth = 2;
-                wctx.stroke();
-                wctx.restore();
-
-                // Text
-                const midA = startA + SEG_ANGLE / 2;
-                const tx = CX + Math.cos(midA) * RADIUS * 0.62;
-                const ty = CY + Math.sin(midA) * RADIUS * 0.62;
-                wctx.save();
-                wctx.translate(tx, ty);
-                wctx.rotate(midA + Math.PI / 2);
-                wctx.textAlign = 'center';
-                wctx.fillStyle = '#9B6B78';
-                wctx.font = 'bold 13px "PingFang SC", "Microsoft YaHei", sans-serif';
-                wctx.fillText(prizes[i].icon, 0, -5);
-                wctx.font = 'bold 11px "PingFang SC", "Microsoft YaHei", sans-serif';
-                wctx.fillText(prizes[i].label, 0, 12);
-                wctx.restore();
-            }
-
-            // Center circle
-            const grad = wctx.createRadialGradient(CX, CY, 0, CX, CY, 28);
-            grad.addColorStop(0, '#fff');
-            grad.addColorStop(0.5, '#ffeef2');
-            grad.addColorStop(1, '#ffd0da');
-            wctx.beginPath();
-            wctx.arc(CX, CY, 28, 0, 2 * Math.PI);
-            wctx.fillStyle = grad;
-            wctx.fill();
-            wctx.strokeStyle = 'rgba(255,255,255,0.9)';
-            wctx.lineWidth = 3;
-            wctx.stroke();
-
-            // Center heart
-            wctx.fillStyle = '#ff6b8a';
-            wctx.font = '18px serif';
-            wctx.textAlign = 'center';
-            wctx.textBaseline = 'middle';
-            wctx.fillText('♥', CX, CY);
-        }
-
-        drawWheel();
 
         createApp({
             data() {
@@ -552,61 +506,181 @@
                     showCongrats: false,
                     showWrong: false,
                     answer: '',
+                    prizes: prizes,
+                    angle: 0,
                 };
             },
+            mounted() {
+                this.canvas = this.$refs.wheelCanvas;
+                this.ctx = this.canvas.getContext('2d');
+                this.SIZE = this.canvas.width;
+                this.CX = this.SIZE / 2;
+                this.CY = this.SIZE / 2;
+                this.R = this.SIZE / 2 - 10;
+                this.requestedSize = this.SIZE;
+                this.drawWheel();
+            },
             methods: {
+                drawWheel() {
+                    const ctx = this.ctx;
+                    const SIZE = this.SIZE;
+                    const CX = this.CX;
+                    const CY = this.CY;
+                    const R = this.R;
+                    const angle = this.angle;
+
+                    ctx.clearRect(0, 0, SIZE, SIZE);
+
+                    // Outer decorative ring
+                    ctx.beginPath();
+                    ctx.arc(CX, CY, R + 8, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#fff';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255,200,210,0.5)';
+                    ctx.lineWidth = 4;
+                    ctx.stroke();
+
+                    // Segments
+                    for (let i = 0; i < prizes.length; i++) {
+                        const startA = angle + i * SEG_ANGLE - Math.PI / 2;
+                        const endA = startA + SEG_ANGLE;
+
+                        // Segment fill
+                        ctx.beginPath();
+                        ctx.moveTo(CX, CY);
+                        ctx.arc(CX, CY, R, startA, endA);
+                        ctx.closePath();
+                        ctx.fillStyle = segColors[i];
+                        ctx.fill();
+                        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+                        ctx.lineWidth = 2.5;
+                        ctx.stroke();
+
+                        // Inner lighter highlight
+                        ctx.beginPath();
+                        ctx.moveTo(CX, CY);
+                        ctx.arc(CX, CY, R * 0.55, startA, endA);
+                        ctx.closePath();
+                        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+                        ctx.fill();
+
+                        // Text
+                        const midA = startA + SEG_ANGLE / 2;
+                        const textR = R * 0.68;
+                        const tx = CX + Math.cos(midA) * textR;
+                        const ty = CY + Math.sin(midA) * textR;
+
+                        ctx.save();
+                        ctx.translate(tx, ty);
+                        ctx.rotate(midA + Math.PI / 2);
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+
+                        // Icon
+                        ctx.fillStyle = '#6B5058';
+                        ctx.font = 'bold 16px "PingFang SC", "Microsoft YaHei", sans-serif';
+                        ctx.fillText(prizes[i].icon, 0, -10);
+
+                        // Label
+                        ctx.fillStyle = '#7B5862';
+                        ctx.font = 'bold 13px "PingFang SC", "Microsoft YaHei", sans-serif';
+                        ctx.fillText(prizes[i].label, 0, 10);
+                        ctx.restore();
+
+                        // Dot on segment divider
+                        const dotR = R * 0.9;
+                        const dx = CX + Math.cos(startA) * dotR;
+                        const dy = CY + Math.sin(startA) * dotR;
+                        ctx.beginPath();
+                        ctx.arc(dx, dy, 3, 0, 2 * Math.PI);
+                        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                        ctx.fill();
+                    }
+
+                    // Outer ring dots between segments
+                    for (let i = 0; i < prizes.length; i++) {
+                        const dotA = angle + i * SEG_ANGLE - Math.PI / 2;
+                        const dotR = R + 2;
+                        const dx = CX + Math.cos(dotA) * dotR;
+                        const dy = CY + Math.sin(dotA) * dotR;
+                        ctx.beginPath();
+                        ctx.arc(dx, dy, 4, 0, 2 * Math.PI);
+                        ctx.fillStyle = '#fff';
+                        ctx.fill();
+                    }
+
+                    // Center circle
+                    const grad = ctx.createRadialGradient(CX, CY, 0, CX, CY, 30);
+                    grad.addColorStop(0, '#fff');
+                    grad.addColorStop(0.4, '#fff5f7');
+                    grad.addColorStop(1, '#ffd0da');
+                    ctx.beginPath();
+                    ctx.arc(CX, CY, 30, 0, 2 * Math.PI);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255,220,230,0.9)';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // Center text
+                    ctx.fillStyle = '#ff6b8a';
+                    ctx.font = 'bold 20px "PingFang SC", "Microsoft YaHei", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('抽奖', CX, CY - 3);
+                },
+
                 startSpin() {
                     if (this.spinning) return;
                     this.spinning = true;
 
-                    // Calculate target: land on TARGET_INDEX
                     const segCenter = TARGET_INDEX * SEG_ANGLE + SEG_ANGLE / 2;
-                    const targetAngle = 2 * Math.PI - segCenter + (Math.random() - 0.5) * SEG_ANGLE * 0.7;
+                    const destAngle = 2 * Math.PI - segCenter + (Math.random() - 0.5) * SEG_ANGLE * 0.65;
                     const fullSpins = (5 + Math.floor(Math.random() * 3)) * 2 * Math.PI;
-                    const totalTarget = angle + fullSpins + targetAngle;
+                    const totalTarget = this.angle + fullSpins + destAngle;
 
-                    const startAngle = angle;
-                    const spinAngle = totalTarget - startAngle;
-                    const duration = 4800 + Math.random() * 800;
+                    const startAngle = this.angle;
+                    const spinAmount = totalTarget - startAngle;
+                    const duration = 5000 + Math.random() * 1000;
                     const startTime = performance.now();
 
-                    const animate = (now) => {
+                    const step = (now) => {
                         const elapsed = now - startTime;
                         const t = Math.min(elapsed / duration, 1);
-                        // Ease out quintic
-                        const eased = 1 - Math.pow(1 - t, 5);
-                        angle = startAngle + spinAngle * eased;
-                        drawWheel();
+                        // Cubic ease out
+                        const eased = 1 - Math.pow(1 - t, 3);
+                        this.angle = startAngle + spinAmount * eased;
+                        this.drawWheel();
 
                         if (t < 1) {
-                            requestAnimationFrame(animate);
+                            requestAnimationFrame(step);
                         } else {
-                            angle = totalTarget;
-                            drawWheel();
+                            this.angle = totalTarget;
+                            this.drawWheel();
                             this.spinning = false;
-                            // Show question after short delay
                             setTimeout(() => {
                                 this.showQuestion = true;
                                 this.answer = '';
                                 this.showWrong = false;
-                            }, 400);
+                                this.$nextTick(() => {
+                                    const inp = this.$refs.answerInput;
+                                    if (inp) inp.focus();
+                                });
+                            }, 500);
                         }
                     };
 
-                    requestAnimationFrame(animate);
+                    requestAnimationFrame(step);
                 },
 
                 checkAnswer() {
-                    const ans = this.answer.trim().toLowerCase();
+                    const ans = this.answer.trim();
                     if (ans.includes('头步桥') && ans.includes('人行道')) {
                         this.showQuestion = false;
                         this.showCongrats = true;
                     } else {
                         this.showWrong = true;
-                        // Shake effect
-                        this.$nextTick(() => {
-                            setTimeout(() => { this.showWrong = false; }, 2500);
-                        });
+                        setTimeout(() => { this.showWrong = false; }, 2500);
                     }
                 },
             },
