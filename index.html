@@ -133,103 +133,73 @@
             border-radius: 1px;
         }
 
-        .timer-section {
+        .blessing {
+            font-size: 18px;
+            color: #c87890;
+            letter-spacing: 2px;
+            line-height: 2.2;
             margin-bottom: 24px;
+        }
+        .blessing p {
+            margin: 0;
+        }
+
+        .timer-section {
+            margin-top: 8px;
         }
 
         .timer-label {
-            font-size: 15px;
+            font-size: 14px;
             color: #b08090;
-            letter-spacing: 3px;
-            margin-bottom: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
             font-weight: 500;
         }
 
-        .timer-main {
+        .timer-line {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
+            align-items: baseline;
+            gap: 6px;
             flex-wrap: wrap;
+            margin-bottom: 8px;
         }
-
-        .timer-block {
-            text-align: center;
-            min-width: 64px;
+        .timer-item {
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
         }
         .timer-num {
-            font-size: 44px;
+            font-size: 28px;
             font-weight: 700;
             color: #d4687c;
             font-variant-numeric: tabular-nums;
             font-family: 'SF Mono', 'Menlo', 'Consolas', 'PingFang SC', monospace;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
         .timer-unit {
             font-size: 13px;
             color: #c0909a;
             letter-spacing: 1px;
-            margin-top: 2px;
         }
-        .timer-colon {
-            font-size: 36px;
-            color: #d08090;
+        .timer-sep {
+            font-size: 20px;
+            color: #d0a0a8;
             font-weight: 300;
-            padding-bottom: 16px;
-        }
-
-        .timer-hms {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 20px;
-        }
-        .hms-block {
-            text-align: center;
-            min-width: 56px;
-        }
-        .hms-num {
-            font-size: 30px;
-            font-weight: 600;
-            color: #c88090;
-            font-variant-numeric: tabular-nums;
-            font-family: 'SF Mono', 'Menlo', 'Consolas', 'PingFang SC', monospace;
-        }
-        .hms-unit {
-            font-size: 11px;
-            color: #c0a0a8;
-            letter-spacing: 1px;
-        }
-        .hms-colon {
-            font-size: 24px;
-            color: #c8a0a8;
-            font-weight: 300;
-            padding-bottom: 4px;
         }
 
         .total-days {
-            font-size: 16px;
+            font-size: 15px;
             color: #b87888;
             letter-spacing: 2px;
-            margin-bottom: 10px;
             font-weight: 500;
+            margin-top: 6px;
         }
         .total-days span {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
             color: #d4687c;
             margin: 0 4px;
-        }
-
-        .footer-msg {
-            font-size: 15px;
-            color: #c090a0;
-            letter-spacing: 2px;
-            font-style: italic;
-            margin-top: 20px;
-            line-height: 1.8;
         }
 
         @media (max-width: 600px) {
@@ -246,19 +216,10 @@
                 letter-spacing: 3px;
             }
             .timer-num {
-                font-size: 32px;
-            }
-            .timer-block {
-                min-width: 48px;
-            }
-            .timer-colon {
-                font-size: 26px;
-            }
-            .hms-num {
                 font-size: 24px;
             }
-            .hms-block {
-                min-width: 44px;
+            .blessing {
+                font-size: 16px;
             }
             .heart-deco {
                 width: 26px;
@@ -286,50 +247,48 @@
             <div class="subtitle">生日快乐</div>
             <div class="divider"></div>
 
-            <div class="timer-section">
-                <div class="timer-label">我们在一起的时间</div>
-                <div class="timer-main">
-                    <div class="timer-block">
-                        <div class="timer-num">{{ years }}</div>
-                        <div class="timer-unit">年</div>
-                    </div>
-                    <span class="timer-colon">·</span>
-                    <div class="timer-block">
-                        <div class="timer-num">{{ months }}</div>
-                        <div class="timer-unit">个月</div>
-                    </div>
-                    <span class="timer-colon">·</span>
-                    <div class="timer-block">
-                        <div class="timer-num">{{ days }}</div>
-                        <div class="timer-unit">天</div>
-                    </div>
-                </div>
-                <div class="timer-hms">
-                    <div class="hms-block">
-                        <div class="hms-num">{{ padZero(hours) }}</div>
-                        <div class="hms-unit">时</div>
-                    </div>
-                    <span class="hms-colon">:</span>
-                    <div class="hms-block">
-                        <div class="hms-num">{{ padZero(minutes) }}</div>
-                        <div class="hms-unit">分</div>
-                    </div>
-                    <span class="hms-colon">:</span>
-                    <div class="hms-block">
-                        <div class="hms-num">{{ padZero(seconds) }}</div>
-                        <div class="hms-unit">秒</div>
-                    </div>
-                </div>
+            <div class="blessing">
+                <p>愿时光温柔 · 岁月静好</p>
+                <p>每一个有你的日子都是最美的风景</p>
+                <p>愿未来的每一天，都如初见般美好</p>
             </div>
 
-            <div class="total-days">
-                从 2019年9月7日 至今<br>
-                已经过去了 <span>{{ totalDays }}</span> 天
-            </div>
-            <div class="divider" style="margin-top:20px;margin-bottom:20px;"></div>
-            <div class="footer-msg">
-                愿时光温柔 · 岁月静好<br>
-                每一天都如初见般美好
+            <div class="divider"></div>
+
+            <div class="timer-section">
+                <div class="timer-label">从 2019年9月7日 至今</div>
+                <div class="timer-line">
+                    <div class="timer-item">
+                        <span class="timer-num">{{ years }}</span>
+                        <span class="timer-unit">年</span>
+                    </div>
+                    <div class="timer-item">
+                        <span class="timer-num">{{ months }}</span>
+                        <span class="timer-unit">个月</span>
+                    </div>
+                    <div class="timer-item">
+                        <span class="timer-num">{{ days }}</span>
+                        <span class="timer-unit">天</span>
+                    </div>
+                    <span class="timer-sep">·</span>
+                    <div class="timer-item">
+                        <span class="timer-num">{{ padZero(hours) }}</span>
+                        <span class="timer-unit">时</span>
+                    </div>
+                    <span class="timer-sep">:</span>
+                    <div class="timer-item">
+                        <span class="timer-num">{{ padZero(minutes) }}</span>
+                        <span class="timer-unit">分</span>
+                    </div>
+                    <span class="timer-sep">:</span>
+                    <div class="timer-item">
+                        <span class="timer-num">{{ padZero(seconds) }}</span>
+                        <span class="timer-unit">秒</span>
+                    </div>
+                </div>
+                <div class="total-days">
+                    已经过去了 <span>{{ totalDays }}</span> 天
+                </div>
             </div>
         </div>
     </div>
