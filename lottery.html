@@ -129,6 +129,48 @@
             border-radius: 14px;
             letter-spacing: 1px;
         }
+        .won-badge {
+            font-size: 14px;
+            color: #d4687c;
+            background: rgba(255, 215, 225, 0.5);
+            padding: 6px 18px;
+            border-radius: 18px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .thanks-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 24px 36px;
+            box-shadow: 0 8px 30px rgba(200, 150, 180, 0.35);
+            animation: toastPop 2.5s ease forwards;
+            pointer-events: none;
+        }
+        .thanks-toast .thanks-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .thanks-toast .thanks-text {
+            font-size: 18px;
+            color: #c090a0;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        @keyframes toastPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+            30% { transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -50%) translateY(-20px); }
+        }
 
         .btn-spin {
             display: inline-block;
@@ -332,8 +374,11 @@
                 <canvas ref="wheelCanvas" id="wheelCanvas" width="340" height="340"></canvas>
             </div>
 
-            <div class="prize-list">
+            <div class="prize-list" v-if="!hasWon">
                 <span class="prize-tag" v-for="p in prizes" :key="p.label">{{ p.icon }} {{ p.label }}</span>
+            </div>
+            <div class="won-badge" v-if="hasWon">
+                🏆 已获得大奖，再来试试手气吧~
             </div>
 
             <button class="btn-spin" @click="startSpin" :disabled="spinning">
@@ -343,6 +388,12 @@
             <div style="margin-top:16px;">
                 <a href="index.html" class="back-link">← 返回主页</a>
             </div>
+        </div>
+
+        <!-- Thanks Toast -->
+        <div class="thanks-toast" v-if="showThanks">
+            <span class="thanks-icon">😊</span>
+            <span class="thanks-text">谢谢惠顾，下次好运噢~</span>
         </div>
 
         <!-- Question Modal -->
@@ -520,7 +571,8 @@
             '#FFD4D4', '#FFE4D0', '#FFF6D4', '#D4F0D4',
             '#D4E4F0', '#E8D4F0', '#F0D4E4', '#F8F0D4',
         ];
-        const TARGET_INDEX = 3;
+        const TARGET_INDEX = 3;   // 佳能相机
+        const NO_PRIZE_INDEX = 2; // 谢谢惠顾
         const SEG_ANGLE = (2 * Math.PI) / prizes.length;
 
         createApp({
@@ -530,6 +582,8 @@
                     showQuestion: false,
                     showCongrats: false,
                     showWrong: false,
+                    showThanks: false,
+                    hasWon: false,
                     answer: '',
                     prizes: prizes,
                     angle: 0,
@@ -659,7 +713,8 @@
                     if (this.spinning) return;
                     this.spinning = true;
 
-                    const segCenter = TARGET_INDEX * SEG_ANGLE + SEG_ANGLE / 2;
+                    const targetIdx = this.hasWon ? NO_PRIZE_INDEX : TARGET_INDEX;
+                    const segCenter = targetIdx * SEG_ANGLE + SEG_ANGLE / 2;
                     const destAngle = 2 * Math.PI - segCenter + (Math.random() - 0.5) * SEG_ANGLE * 0.65;
                     const fullSpins = (5 + Math.floor(Math.random() * 3)) * 2 * Math.PI;
                     const totalTarget = this.angle + fullSpins + destAngle;
@@ -672,7 +727,6 @@
                     const step = (now) => {
                         const elapsed = now - startTime;
                         const t = Math.min(elapsed / duration, 1);
-                        // Cubic ease out
                         const eased = 1 - Math.pow(1 - t, 3);
                         this.angle = startAngle + spinAmount * eased;
                         this.drawWheel();
@@ -683,15 +737,23 @@
                             this.angle = totalTarget;
                             this.drawWheel();
                             this.spinning = false;
-                            setTimeout(() => {
-                                this.showQuestion = true;
-                                this.answer = '';
-                                this.showWrong = false;
-                                this.$nextTick(() => {
-                                    const inp = this.$refs.answerInput;
-                                    if (inp) inp.focus();
-                                });
-                            }, 500);
+
+                            if (this.hasWon) {
+                                // Already won, show thanks message
+                                this.showThanks = true;
+                                setTimeout(() => { this.showThanks = false; }, 2500);
+                            } else {
+                                // First win, show question
+                                setTimeout(() => {
+                                    this.showQuestion = true;
+                                    this.answer = '';
+                                    this.showWrong = false;
+                                    this.$nextTick(() => {
+                                        const inp = this.$refs.answerInput;
+                                        if (inp) inp.focus();
+                                    });
+                                }, 500);
+                            }
                         }
                     };
 
@@ -702,6 +764,7 @@
                     const ans = this.answer.trim();
                     if (ans.includes('头步桥') && ans.includes('人行道')) {
                         this.showQuestion = false;
+                        this.hasWon = true;
                         this.showCongrats = true;
                     } else {
                         this.showWrong = true;
