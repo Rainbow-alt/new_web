@@ -196,6 +196,7 @@
             text-align: center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.2);
             animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
         @keyframes popIn {
             from { transform: scale(0.7); opacity: 0; }
@@ -275,6 +276,29 @@
             letter-spacing: 1px;
         }
 
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(0,0,0,0.06);
+            border-radius: 50%;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            background: rgba(0,0,0,0.12);
+            color: #666;
+        }
+
         @media (max-width: 500px) {
             .card { padding: 28px 16px; border-radius: 20px; }
             .title { font-size: 26px; }
@@ -322,8 +346,9 @@
         </div>
 
         <!-- Question Modal -->
-        <div class="modal-overlay" v-if="showQuestion">
+        <div class="modal-overlay" v-if="showQuestion" @click.self="showQuestion = false">
             <div class="modal-box">
+                <button class="modal-close" @click="showQuestion = false">✕</button>
                 <div class="modal-icon">🎁</div>
                 <div class="modal-title">恭喜抽中 佳能相机大礼包！</div>
                 <div class="modal-desc">
