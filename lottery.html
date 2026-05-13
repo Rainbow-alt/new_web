@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎀 小玉玉的幸运大转盘</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fce4ec 0%, #f8d8e8 20%, #e8d8f0 45%, #d8e4f8 65%, #d0eaf8 85%, #c8e8f4 100%);
+            background-attachment: fixed;
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #petalCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        #app {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 8px 40px rgba(200, 150, 180, 0.22), 0 0 80px rgba(200, 180, 210, 0.12);
+            padding: 40px 44px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            animation: cardFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .title {
+            font-size: 34px;
+            font-weight: 700;
+            color: #d4687c;
+            letter-spacing: 3px;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            font-size: 15px;
+            color: #c090a0;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 0 auto 20px;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 28px solid #ff6b8a;
+            filter: drop-shadow(0 2px 4px rgba(200, 100, 130, 0.5));
+        }
+        .pointer::after {
+            content: '';
+            position: absolute;
+            top: -34px;
+            left: -6px;
+            width: 12px;
+            height: 12px;
+            background: #ff6b8a;
+            border-radius: 50%;
+        }
+
+        #wheelCanvas {
+            border-radius: 50%;
+            box-shadow: 0 0 0 8px rgba(255, 180, 200, 0.35), 0 0 0 16px rgba(255, 200, 210, 0.18), 0 4px 30px rgba(200, 150, 170, 0.3);
+        }
+
+        .btn-spin {
+            display: inline-block;
+            padding: 14px 48px;
+            background: linear-gradient(135deg, #ff7b9a, #ff9ab2, #f8a4c8);
+            color: #fff;
+            border: none;
+            border-radius: 35px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(248, 120, 150, 0.45);
+            transition: all 0.3s ease;
+            animation: btnGlow 2.2s ease-in-out infinite;
+        }
+        .btn-spin:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 10px 32px rgba(248, 120, 150, 0.6);
+        }
+        .btn-spin:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            animation: none;
+        }
+        @keyframes btnGlow {
+            0%, 100% { box-shadow: 0 6px 24px rgba(248, 120, 150, 0.45); }
+            50% { box-shadow: 0 6px 36px rgba(248, 120, 150, 0.7); }
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: #c090a0;
+            text-decoration: none;
+            font-size: 14px;
+            letter-spacing: 2px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #d4687c; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.45);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 24px;
+            padding: 36px 32px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #d4687c;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .modal-desc {
+            font-size: 15px;
+            color: #888;
+            margin-bottom: 18px;
+            line-height: 1.7;
+            letter-spacing: 1px;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #f0c0d0;
+            border-radius: 18px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            color: #666;
+            letter-spacing: 1px;
+            transition: border-color 0.2s;
+        }
+        .modal-input:focus { border-color: #ff8a9e; }
+        .modal-input.wrong {
+            border-color: #ff6b6b;
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .modal-btn {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 12px 36px;
+            background: linear-gradient(135deg, #ff7b9a, #f8a4c8);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(248, 120, 150, 0.4);
+            transition: all 0.2s;
+        }
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(248, 120, 150, 0.55);
+        }
+        .modal-btn.close-btn {
+            background: #e0d0d8;
+            box-shadow: 0 4px 16px rgba(180, 160, 170, 0.3);
+            margin-left: 10px;
+        }
+
+        .wrong-msg {
+            color: #e88890;
+            font-size: 13px;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 500px) {
+            .card { padding: 28px 18px; border-radius: 20px; }
+            .title { font-size: 26px; }
+            #wheelCanvas { width: 280px; height: 280px; }
+            .pointer {
+                border-left-width: 14px;
+                border-right-width: 14px;
+                border-top-width: 22px;
+                top: -5px;
+            }
+            .pointer::after {
+                width: 10px; height: 10px;
+                top: -28px; left: -5px;
+            }
+            .btn-spin { padding: 12px 36px; font-size: 17px; }
+            .modal { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="petalCanvas"></canvas>
+
+    <div id="app">
+        <div class="card">
+            <div class="title">🎀 幸运大转盘 🎀</div>
+            <div class="subtitle">小玉玉的专属抽奖</div>
+
+            <div class="wheel-wrapper">
+                <div class="pointer"></div>
+                <canvas id="wheelCanvas" width="340" height="340"></canvas>
+            </div>
+
+            <button class="btn-spin" @click="startSpin" :disabled="spinning">
+                {{ spinning ? '转动中...' : '🎯 开始抽奖' }}
+            </button>
+
+            <div style="margin-top:14px;">
+                <a href="index.html" class="back-link">← 返回主页</a>
+            </div>
+        </div>
+
+        <!-- Question Modal -->
+        <div class="modal-overlay" v-if="showQuestion" @click.self="() => {}">
+            <div class="modal">
+                <div class="modal-icon">🎁</div>
+                <div class="modal-title">恭喜抽中 佳能相机大礼包！</div>
+                <div class="modal-desc">
+                    请回答以下问题，答对即可领取奖品~<br><br>
+                    <strong style="color:#d4687c;font-size:17px;">
+                        请问小林和小玉确认关系的地方是哪里？
+                    </strong>
+                </div>
+                <input
+                    class="modal-input"
+                    :class="{ wrong: showWrong }"
+                    v-model="answer"
+                    placeholder="请输入你的答案"
+                    @keyup.enter="checkAnswer"
+                />
+                <div class="wrong-msg" v-if="showWrong">不对哦，再想想~ 💭</div>
+                <button class="modal-btn" @click="checkAnswer">确认提交</button>
+            </div>
+        </div>
+
+        <!-- Congratulations Modal -->
+        <div class="modal-overlay" v-if="showCongrats">
+            <div class="modal">
+                <div class="modal-icon">🎉</div>
+                <div class="modal-title">恭喜你获得大奖！</div>
+                <div class="modal-desc">
+                    🌟 <strong>佳能相机大礼包一份</strong> 🌟<br><br>
+                    请私信<strong>小林</strong>获取领奖地址噢~<br>
+                    <span style="font-size:13px;color:#aaa;">领奖暗号：头步桥红绿灯的人行道</span>
+                </div>
+                <button class="modal-btn close-btn" @click="showCongrats = false">知道啦 ~</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cherry blossom animation -->
+    <script>
+        (function() {
+            const canvas = document.getElementById('petalCanvas');
+            const ctx = canvas.getContext('2d');
+            const palette = ['#FFB7C5','#FFC0CB','#FFAAB8','#FFB8C6','#F8A4C8','#FFD1DC','#FF9AB2','#FAB8C4','#FFCCD5','#FFB3C6','#FFC4D0','#FDC5CD','#FFBBC8','#FFAEC0','#FFD6E0','#F9C0C8'];
+
+            let petals = [], sparkles = [], w, h;
+
+            function resize() {
+                w = window.innerWidth;
+                h = window.innerHeight;
+                canvas.width = w;
+                canvas.height = h;
+            }
+
+            function mkPetal(above) {
+                const s = 6 + Math.random() * 20;
+                const d = (s - 6) / 20;
+                return {
+                    x: Math.random() * (w + 200) - 100,
+                    y: above ? -(Math.random() * h * 0.6) : Math.random() * h * 1.2 - h * 0.1,
+                    size: s, vx: 0.3 + Math.random() * 1.8,
+                    vy: 1.2 + Math.random() * 2.8 - d * 1.4,
+                    rot: Math.random() * Math.PI * 2,
+                    rSpd: (Math.random() - 0.5) * 0.03,
+                    swPh: Math.random() * Math.PI * 2,
+                    swSpd: 0.008 + Math.random() * 0.025,
+                    swAmp: 0.3 + Math.random() * 2.5,
+                    color: palette[Math.floor(Math.random() * palette.length)],
+                    opacity: 0.3 + Math.random() * 0.55 - d * 0.2,
+                };
+            }
+
+            function mkSparkle(above) {
+                return {
+                    x: Math.random() * w,
+                    y: above ? -(Math.random() * h) : Math.random() * h,
+                    size: 1 + Math.random() * 3,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: 0.2 + Math.random() * 1.2,
+                    opacity: 0, maxOp: 0.4 + Math.random() * 0.6,
+                    ph: Math.random() * Math.PI * 2,
+                    twSpd: 0.02 + Math.random() * 0.06,
+                };
+            }
+
+            function drawPetal(x, y, s, r, c, o) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, Math.min(1, o));
+                ctx.translate(x, y);
+                ctx.rotate(r);
+                ctx.fillStyle = c;
+                ctx.beginPath();
+                const w2 = s * 0.38, h2 = s * 0.9;
+                ctx.moveTo(0, -h2);
+                ctx.bezierCurveTo(w2, -h2 * 0.55, w2 * 1.1, h2 * 0.25, 0, h2 * 0.75);
+                ctx.bezierCurveTo(-w2 * 1.1, h2 * 0.25, -w2, -h2 * 0.55, 0, -h2);
+                ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.15)';
+                ctx.beginPath();
+                ctx.ellipse(0, -s * 0.25, s * 0.15, s * 0.35, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            function drawSparkle(x, y, s, o) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, Math.min(1, o));
+                const g = ctx.createRadialGradient(x, y, 0, x, y, s);
+                g.addColorStop(0, 'rgba(255,255,255,1)');
+                g.addColorStop(0.3, 'rgba(255,240,245,0.6)');
+                g.addColorStop(1, 'rgba(255,220,235,0)');
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(x, y, s, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            function init() {
+                petals = []; sparkles = [];
+                for (let i = 0; i < 70; i++) petals.push(mkPetal(false));
+                for (let i = 0; i < 40; i++) sparkles.push(mkSparkle(false));
+            }
+
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                for (const p of petals) {
+                    p.swPh += p.swSpd;
+                    p.x += p.vx + Math.sin(p.swPh) * p.swAmp * 0.3;
+                    p.y += p.vy;
+                    p.rot += p.rSpd;
+                    drawPetal(p.x, p.y, p.size, p.rot, p.color, p.opacity);
+                    if (p.y > h + p.size * 2 || p.x > w + p.size * 2 || p.x < -p.size * 2) {
+                        const n = mkPetal(true);
+                        Object.assign(p, { x: n.x, y: n.y, size: n.size, vx: n.vx, vy: n.vy, rot: n.rot, rSpd: n.rSpd, swPh: n.swPh, swSpd: n.swSpd, swAmp: n.swAmp, color: n.color, opacity: n.opacity });
+                    }
+                }
+                for (const s of sparkles) {
+                    s.ph += s.twSpd;
+                    s.opacity = s.maxOp * (0.5 + 0.5 * Math.sin(s.ph));
+                    s.x += s.vx; s.y += s.vy;
+                    drawSparkle(s.x, s.y, s.size, s.opacity);
+                    if (s.y > h + 10 || s.x > w + 10 || s.x < -10) {
+                        const n = mkSparkle(true);
+                        Object.assign(s, { x: n.x, y: n.y, size: n.size, vx: n.vx, vy: n.vy, maxOp: n.maxOp, ph: n.ph, twSpd: n.twSpd });
+                    }
+                }
+                requestAnimationFrame(loop);
+            }
+
+            window.addEventListener('resize', () => { resize(); init(); });
+            resize(); init(); loop();
+        })();
+    </script>
+
+    <!-- Vue App -->
+    <script>
+        const { createApp } = Vue;
+
+        const prizes = [
+            { label: '520红包', icon: '🧧' },
+            { label: '一束鲜花', icon: '💐' },
+            { label: '谢谢惠顾', icon: '😊' },
+            { label: '佳能相机', icon: '📷' },
+            { label: '爱心抱枕', icon: '🧸' },
+            { label: '甜蜜糖果', icon: '🍬' },
+            { label: '再来一次', icon: '🔄' },
+            { label: '幸运星', icon: '⭐' },
+        ];
+        const segColors = [
+            '#FFD4D4', '#FFE4D0', '#FFF5D4', '#D4F0D4',
+            '#D4E4F0', '#E8D4F0', '#F0D4E4', '#F8F0D4',
+        ];
+        const TARGET_INDEX = 3;
+        const SEG_ANGLE = (2 * Math.PI) / prizes.length;
+
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const wctx = wheelCanvas.getContext('2d');
+        const SIZE = wheelCanvas.width;
+        const CX = SIZE / 2;
+        const CY = SIZE / 2;
+        const RADIUS = SIZE / 2 - 6;
+
+        let angle = 0;
+
+        function drawWheel() {
+            wctx.clearRect(0, 0, SIZE, SIZE);
+
+            // Outer ring shadow
+            wctx.save();
+            wctx.beginPath();
+            wctx.arc(CX, CY, RADIUS + 4, 0, 2 * Math.PI);
+            wctx.fillStyle = 'rgba(255,200,210,0.25)';
+            wctx.fill();
+            wctx.restore();
+
+            // Draw segments
+            for (let i = 0; i < prizes.length; i++) {
+                const startA = angle + i * SEG_ANGLE - Math.PI / 2;
+                const endA = startA + SEG_ANGLE;
+
+                wctx.save();
+                wctx.beginPath();
+                wctx.moveTo(CX, CY);
+                wctx.arc(CX, CY, RADIUS, startA, endA);
+                wctx.closePath();
+                wctx.fillStyle = segColors[i];
+                wctx.fill();
+                wctx.strokeStyle = 'rgba(255,255,255,0.7)';
+                wctx.lineWidth = 2;
+                wctx.stroke();
+                wctx.restore();
+
+                // Text
+                const midA = startA + SEG_ANGLE / 2;
+                const tx = CX + Math.cos(midA) * RADIUS * 0.62;
+                const ty = CY + Math.sin(midA) * RADIUS * 0.62;
+                wctx.save();
+                wctx.translate(tx, ty);
+                wctx.rotate(midA + Math.PI / 2);
+                wctx.textAlign = 'center';
+                wctx.fillStyle = '#9B6B78';
+                wctx.font = 'bold 13px "PingFang SC", "Microsoft YaHei", sans-serif';
+                wctx.fillText(prizes[i].icon, 0, -5);
+                wctx.font = 'bold 11px "PingFang SC", "Microsoft YaHei", sans-serif';
+                wctx.fillText(prizes[i].label, 0, 12);
+                wctx.restore();
+            }
+
+            // Center circle
+            const grad = wctx.createRadialGradient(CX, CY, 0, CX, CY, 28);
+            grad.addColorStop(0, '#fff');
+            grad.addColorStop(0.5, '#ffeef2');
+            grad.addColorStop(1, '#ffd0da');
+            wctx.beginPath();
+            wctx.arc(CX, CY, 28, 0, 2 * Math.PI);
+            wctx.fillStyle = grad;
+            wctx.fill();
+            wctx.strokeStyle = 'rgba(255,255,255,0.9)';
+            wctx.lineWidth = 3;
+            wctx.stroke();
+
+            // Center heart
+            wctx.fillStyle = '#ff6b8a';
+            wctx.font = '18px serif';
+            wctx.textAlign = 'center';
+            wctx.textBaseline = 'middle';
+            wctx.fillText('♥', CX, CY);
+        }
+
+        drawWheel();
+
+        createApp({
+            data() {
+                return {
+                    spinning: false,
+                    showQuestion: false,
+                    showCongrats: false,
+                    showWrong: false,
+                    answer: '',
+                };
+            },
+            methods: {
+                startSpin() {
+                    if (this.spinning) return;
+                    this.spinning = true;
+
+                    // Calculate target: land on TARGET_INDEX
+                    const segCenter = TARGET_INDEX * SEG_ANGLE + SEG_ANGLE / 2;
+                    const targetAngle = 2 * Math.PI - segCenter + (Math.random() - 0.5) * SEG_ANGLE * 0.7;
+                    const fullSpins = (5 + Math.floor(Math.random() * 3)) * 2 * Math.PI;
+                    const totalTarget = angle + fullSpins + targetAngle;
+
+                    const startAngle = angle;
+                    const spinAngle = totalTarget - startAngle;
+                    const duration = 4800 + Math.random() * 800;
+                    const startTime = performance.now();
+
+                    const animate = (now) => {
+                        const elapsed = now - startTime;
+                        const t = Math.min(elapsed / duration, 1);
+                        // Ease out quintic
+                        const eased = 1 - Math.pow(1 - t, 5);
+                        angle = startAngle + spinAngle * eased;
+                        drawWheel();
+
+                        if (t < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            angle = totalTarget;
+                            drawWheel();
+                            this.spinning = false;
+                            // Show question after short delay
+                            setTimeout(() => {
+                                this.showQuestion = true;
+                                this.answer = '';
+                                this.showWrong = false;
+                            }, 400);
+                        }
+                    };
+
+                    requestAnimationFrame(animate);
+                },
+
+                checkAnswer() {
+                    const ans = this.answer.trim().toLowerCase();
+                    if (ans.includes('头步桥') && ans.includes('人行道')) {
+                        this.showQuestion = false;
+                        this.showCongrats = true;
+                    } else {
+                        this.showWrong = true;
+                        // Shake effect
+                        this.$nextTick(() => {
+                            setTimeout(() => { this.showWrong = false; }, 2500);
+                        });
+                    }
+                },
+            },
+        }).mount('#app');
+    </script>
+</body>
+</html>
