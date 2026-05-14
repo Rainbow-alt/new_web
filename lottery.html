@@ -201,6 +201,58 @@
             50% { box-shadow: 0 6px 36px rgba(248, 120, 150, 0.7); }
         }
 
+        .btn-claim {
+            display: inline-block;
+            padding: 14px 48px;
+            background: linear-gradient(135deg, #f5a623, #f7c948, #fad87a);
+            color: #fff;
+            border: none;
+            border-radius: 35px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(245, 166, 35, 0.45);
+            transition: all 0.3s ease;
+            animation: claimGlow 1.5s ease-in-out infinite;
+        }
+        .btn-claim:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 10px 32px rgba(245, 166, 35, 0.6);
+        }
+        @keyframes claimGlow {
+            0%, 100% { box-shadow: 0 6px 24px rgba(245, 166, 35, 0.45); }
+            50% { box-shadow: 0 6px 36px rgba(245, 166, 35, 0.72); }
+        }
+
+        .claimed-view {
+            text-align: center;
+            padding: 30px 0;
+        }
+        .claimed-view .claimed-icon {
+            font-size: 80px;
+            display: block;
+            margin-bottom: 20px;
+            animation: floatIcon 3s ease-in-out infinite;
+        }
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .claimed-view .claimed-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #d4687c;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        .claimed-view .claimed-desc {
+            font-size: 15px;
+            color: #b09098;
+            letter-spacing: 2px;
+            line-height: 1.8;
+        }
+
         .back-link {
             display: inline-block;
             margin-top: 16px;
@@ -364,7 +416,23 @@
     <canvas id="petalCanvas"></canvas>
 
     <div id="app">
-        <div class="card">
+        <!-- ====== 奖品已被领取 ====== -->
+        <div class="card" v-if="claimed">
+            <div class="claimed-view">
+                <span class="claimed-icon">🎁</span>
+                <div class="claimed-title">奖品已被领取</div>
+                <div class="claimed-desc">
+                    大奖已找到它的主人啦~<br>
+                    感谢参与，下次好运噢 💕
+                </div>
+            </div>
+            <div style="margin-top:20px;">
+                <a href="index.html" class="back-link">← 返回主页</a>
+            </div>
+        </div>
+
+        <!-- ====== 正常抽奖页面 ====== -->
+        <div class="card" v-else>
             <div class="title">🎀 幸运大转盘 🎀</div>
             <div class="subtitle">小玉玉的专属抽奖</div>
 
@@ -374,26 +442,20 @@
                 <canvas ref="wheelCanvas" id="wheelCanvas" width="340" height="340"></canvas>
             </div>
 
-            <div class="prize-list" v-if="!hasWon">
+            <div class="prize-list">
                 <span class="prize-tag" v-for="p in prizes" :key="p.label">{{ p.icon }} {{ p.label }}</span>
             </div>
-            <div class="won-badge" v-if="hasWon">
-                🏆 已获得大奖，再来试试手气吧~
-            </div>
 
-            <button class="btn-spin" @click="startSpin" :disabled="spinning">
+            <button v-if="!spunToCamera" class="btn-spin" @click="startSpin" :disabled="spinning">
                 {{ spinning ? '🎰 转动中...' : '🎯 开始抽奖' }}
+            </button>
+            <button v-else class="btn-claim" @click="claimPrize">
+                🎁 领取奖品
             </button>
 
             <div style="margin-top:16px;">
                 <a href="index.html" class="back-link">← 返回主页</a>
             </div>
-        </div>
-
-        <!-- Thanks Toast -->
-        <div class="thanks-toast" v-if="showThanks">
-            <span class="thanks-icon">😊</span>
-            <span class="thanks-text">谢谢惠顾，下次好运噢~</span>
         </div>
 
         <!-- Question Modal -->
@@ -428,7 +490,7 @@
                 <div class="modal-title">恭喜你获得大奖！</div>
                 <div class="modal-desc">
                     🌟 <strong>佳能相机大礼包一份</strong> 🌟<br><br>
-                    请私信<strong>小林</strong>获取领奖地址噢~<br>
+                    凭截图凭证找<strong>小林</strong>领取奖励噢~<br>
                     <span style="font-size:13px;color:#aaa;">领奖暗号：头步桥红绿灯的人行道</span>
                 </div>
                 <button class="modal-btn close-btn" @click="showCongrats = false">知道啦 ~</button>
@@ -572,7 +634,6 @@
             '#D4E4F0', '#E8D4F0', '#F0D4E4', '#F8F0D4',
         ];
         const TARGET_INDEX = 3;   // 佳能相机
-        const NO_PRIZE_INDEX = 2; // 谢谢惠顾
         const SEG_ANGLE = (2 * Math.PI) / prizes.length;
 
         createApp({
@@ -582,22 +643,27 @@
                     showQuestion: false,
                     showCongrats: false,
                     showWrong: false,
-                    showThanks: false,
-                    hasWon: false,
+                    spunToCamera: false,
+                    claimed: false,
                     answer: '',
                     prizes: prizes,
                     angle: 0,
                 };
             },
             mounted() {
-                this.canvas = this.$refs.wheelCanvas;
-                this.ctx = this.canvas.getContext('2d');
-                this.SIZE = this.canvas.width;
-                this.CX = this.SIZE / 2;
-                this.CY = this.SIZE / 2;
-                this.R = this.SIZE / 2 - 10;
-                this.requestedSize = this.SIZE;
-                this.drawWheel();
+                this.claimed = localStorage.getItem('lottery_claimed') === 'true';
+                if (this.claimed) return; // No need to init wheel if already claimed
+
+                this.$nextTick(() => {
+                    this.canvas = this.$refs.wheelCanvas;
+                    if (!this.canvas) return;
+                    this.ctx = this.canvas.getContext('2d');
+                    this.SIZE = this.canvas.width;
+                    this.CX = this.SIZE / 2;
+                    this.CY = this.SIZE / 2;
+                    this.R = this.SIZE / 2 - 10;
+                    this.drawWheel();
+                });
             },
             methods: {
                 drawWheel() {
@@ -712,9 +778,9 @@
                 startSpin() {
                     if (this.spinning) return;
                     this.spinning = true;
+                    this.spunToCamera = false;
 
-                    const targetIdx = this.hasWon ? NO_PRIZE_INDEX : TARGET_INDEX;
-                    const segCenter = targetIdx * SEG_ANGLE + SEG_ANGLE / 2;
+                    const segCenter = TARGET_INDEX * SEG_ANGLE + SEG_ANGLE / 2;
                     const destAngle = 2 * Math.PI - segCenter + (Math.random() - 0.5) * SEG_ANGLE * 0.65;
                     const fullSpins = (5 + Math.floor(Math.random() * 3)) * 2 * Math.PI;
                     const totalTarget = this.angle + fullSpins + destAngle;
@@ -737,34 +803,32 @@
                             this.angle = totalTarget;
                             this.drawWheel();
                             this.spinning = false;
-
-                            if (this.hasWon) {
-                                // Already won, show thanks message
-                                this.showThanks = true;
-                                setTimeout(() => { this.showThanks = false; }, 2500);
-                            } else {
-                                // First win, show question
-                                setTimeout(() => {
-                                    this.showQuestion = true;
-                                    this.answer = '';
-                                    this.showWrong = false;
-                                    this.$nextTick(() => {
-                                        const inp = this.$refs.answerInput;
-                                        if (inp) inp.focus();
-                                    });
-                                }, 500);
-                            }
+                            // Show claim button instead of question
+                            setTimeout(() => {
+                                this.spunToCamera = true;
+                            }, 400);
                         }
                     };
 
                     requestAnimationFrame(step);
                 },
 
+                claimPrize() {
+                    this.showQuestion = true;
+                    this.answer = '';
+                    this.showWrong = false;
+                    this.$nextTick(() => {
+                        const inp = this.$refs.answerInput;
+                        if (inp) inp.focus();
+                    });
+                },
+
                 checkAnswer() {
                     const ans = this.answer.trim();
                     if (ans.includes('头步桥') && ans.includes('人行道')) {
                         this.showQuestion = false;
-                        this.hasWon = true;
+                        localStorage.setItem('lottery_claimed', 'true');
+                        this.claimed = true;
                         this.showCongrats = true;
                     } else {
                         this.showWrong = true;
