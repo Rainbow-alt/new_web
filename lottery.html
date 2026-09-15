@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎀 小玉玉的幸运大转盘</title>
+    <title>💗 小林和小玉 · 七周年惊喜转盘</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -420,21 +420,21 @@
         <div class="card" v-if="claimed">
             <div class="claimed-view">
                 <span class="claimed-icon">🎁</span>
-                <div class="claimed-title">奖品已被领取</div>
+                <div class="claimed-title">纪念礼已被领取</div>
                 <div class="claimed-desc">
-                    大奖已找到它的主人啦~<br>
-                    感谢参与，下次好运噢 💕
+                    这份七周年惊喜已经收下啦~<br>
+                    愿下一段旅程继续浪漫相伴 💕
                 </div>
             </div>
             <div style="margin-top:20px;">
-                <a href="index.html" class="back-link">← 返回主页</a>
+                <a href="index.html" class="back-link">← 返回纪念主页</a>
             </div>
         </div>
 
         <!-- ====== 正常抽奖页面 ====== -->
         <div class="card" v-else>
-            <div class="title">🎀 幸运大转盘 🎀</div>
-            <div class="subtitle">小玉玉的专属抽奖</div>
+            <div class="title">💗 七周年惊喜转盘 💗</div>
+            <div class="subtitle">小林和小玉的纪念日限定</div>
 
             <div class="wheel-container">
                 <div class="pointer-dot"></div>
@@ -445,16 +445,15 @@
             <div class="prize-list">
                 <span class="prize-tag" v-for="p in prizes" :key="p.label">{{ p.icon }} {{ p.label }}</span>
             </div>
-
             <button v-if="!spunToCamera" class="btn-spin" @click="startSpin" :disabled="spinning">
-                {{ spinning ? '🎰 转动中...' : '🎯 开始抽奖' }}
+                {{ spinning ? '🎰 浪漫转动中...' : '🎯 开启惊喜' }}
             </button>
             <button v-else class="btn-claim" @click="claimPrize">
-                🎁 领取奖品
+                🎁 领取纪念礼
             </button>
 
             <div style="margin-top:16px;">
-                <a href="index.html" class="back-link">← 返回主页</a>
+                <a href="index.html" class="back-link">← 返回纪念主页</a>
             </div>
         </div>
 
@@ -463,9 +462,9 @@
             <div class="modal-box">
                 <button class="modal-close" @click="showQuestion = false">✕</button>
                 <div class="modal-icon">🎁</div>
-                <div class="modal-title">恭喜抽中 佳能相机大礼包！</div>
+                <div class="modal-title">恭喜抽中 七周年纪念礼！</div>
                 <div class="modal-desc">
-                    请回答以下问题，答对即可领取奖品~<br><br>
+                    回答一个只属于你们的问题，答对即可开启惊喜~<br><br>
                     <strong style="color:#d4687c;font-size:17px;">
                         请问小林和小玉确认关系的地方是哪里？
                     </strong>
@@ -487,13 +486,13 @@
         <div class="modal-overlay" v-if="showCongrats">
             <div class="modal-box">
                 <div class="modal-icon">🎉</div>
-                <div class="modal-title">恭喜你获得大奖！</div>
+                <div class="modal-title">七周年快乐！</div>
                 <div class="modal-desc">
-                    🌟 <strong>佳能相机大礼包一份</strong> 🌟<br><br>
-                    凭截图凭证找<strong>小林</strong>领取奖励噢~<br>
-                    <span style="font-size:13px;color:#aaa;">领奖暗号：头步桥红绿灯的人行道</span>
+                    🌟 <strong>七周年纪念大礼包一份</strong> 🌟<br><br>
+                    凭截图凭证找<strong>小林</strong>领取专属惊喜噢~<br>
+                    <span style="font-size:13px;color:#aaa;">纪念暗号：头步桥红绿灯的人行道</span>
                 </div>
-                <button class="modal-btn close-btn" @click="showCongrats = false">知道啦 ~</button>
+                <button class="modal-btn close-btn" @click="showCongrats = false">收下这份心意 ~</button>
             </div>
         </div>
     </div>
@@ -620,20 +619,20 @@
         const { createApp } = Vue;
 
         const prizes = [
-            { label: '520红包', icon: '🧧' },
-            { label: '一束鲜花', icon: '💐' },
-            { label: '谢谢惠顾', icon: '😊' },
-            { label: '佳能相机', icon: '📷' },
-            { label: '爱心抱枕', icon: '🧸' },
+            { label: '七周年红包', icon: '🧧' },
+            { label: '一束玫瑰', icon: '💐' },
+            { label: '攒一次好运', icon: '😊' },
+            { label: '纪念相机', icon: '📷' },
+            { label: '情侣抱枕', icon: '🧸' },
             { label: '甜蜜糖果', icon: '🍬' },
             { label: '再来一次', icon: '🔄' },
-            { label: '幸运星', icon: '⭐' },
+            { label: '幸运星光', icon: '⭐' },
         ];
         const segColors = [
             '#FFD4D4', '#FFE4D0', '#FFF6D4', '#D4F0D4',
             '#D4E4F0', '#E8D4F0', '#F0D4E4', '#F8F0D4',
         ];
-        const TARGET_INDEX = 3;   // 佳能相机
+        const TARGET_INDEX = 3;   // 纪念相机
         const SEG_ANGLE = (2 * Math.PI) / prizes.length;
 
         createApp({
@@ -772,7 +771,7 @@
                     ctx.font = 'bold 20px "PingFang SC", "Microsoft YaHei", sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText('抽奖', CX, CY - 3);
+                    ctx.fillText('惊喜', CX, CY - 3);
                 },
 
                 startSpin() {

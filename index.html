@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>520 · 生日快乐</title>
+    <title>小林和小玉 · 相爱七周年</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
         * {
@@ -234,8 +234,8 @@
                 border-radius: 18px;
             }
             .title-520 {
-                font-size: 52px;
-                letter-spacing: 4px;
+                font-size: 44px;
+                letter-spacing: 2px;
             }
             .subtitle {
                 font-size: 30px;
@@ -248,14 +248,17 @@
                 font-size: 16px;
             }
             .heart-deco {
-                width: 26px;
-                height: 26px;
-                margin: 0 6px;
+                width: 22px;
+                height: 22px;
+                margin: 0 4px;
             }
             .heart-deco::before,
             .heart-deco::after {
-                width: 14px;
-                height: 22px;
+                width: 12px;
+                height: 18px;
+            }
+            .heart-deco::before {
+                left: 7px;
             }
         }
     </style>
@@ -267,29 +270,29 @@
         <div class="card">
             <div style="display:flex;align-items:center;justify-content:center;">
                 <span class="heart-deco"></span>
-                <span class="title-520">520</span>
+                <span class="title-520">7 YEARS</span>
                 <span class="heart-deco"></span>
             </div>
-            <div class="subtitle">生日快乐</div>
+            <div class="subtitle">相爱七周年</div>
             <div class="divider"></div>
 
             <div class="blessing">
                 <p>亲爱的小玉玉 💕</p>
-                <p>愿时光温柔 · 岁月静好</p>
-                <p>每一个有你的日子都是最美的风景</p>
-                <p>愿未来的每一天，都如初见般美好</p>
+                <p>从 2019.09.07 到今天，小林和小玉已经相爱七年</p>
+                <p>谢谢你把每个平凡日子，都酿成温柔浪漫</p>
+                <p>愿往后的春夏秋冬，依旧牵手、依旧心动</p>
             </div>
 
             <div class="divider"></div>
 
             <div class="lottery-link">
-                <a href="lottery.html">🎀 点我抽奖，有惊喜哦 ~</a>
+                <a href="lottery.html">🎀 开启七周年惊喜 ~</a>
             </div>
 
             <div class="divider"></div>
 
             <div class="timer-section">
-                <div class="timer-label">从 2019年9月7日 至今</div>
+                <div class="timer-label">从 2019年9月7日 相爱至今</div>
                 <div class="timer-line">
                     <div class="timer-item">
                         <span class="timer-num">{{ years }}</span>
@@ -320,7 +323,7 @@
                     </div>
                 </div>
                 <div class="total-days">
-                    已经过去了 <span>{{ totalDays }}</span> 天
+                    我们已经相爱了 <span>{{ totalDays }}</span> 天
                 </div>
             </div>
         </div>
