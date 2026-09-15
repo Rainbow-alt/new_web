@@ -20,7 +20,7 @@
             overflow-x: hidden;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             position: relative;
         }
 
@@ -42,7 +42,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 48px 20px;
         }
 
         .card {
@@ -54,7 +54,7 @@
             box-shadow: 0 8px 40px rgba(200, 150, 180, 0.25), 0 0 80px rgba(200, 180, 200, 0.15);
             padding: 50px 60px;
             text-align: center;
-            max-width: 580px;
+            max-width: 760px;
             width: 100%;
             animation: cardFloat 6s ease-in-out infinite;
         }
@@ -202,30 +202,111 @@
             margin: 0 4px;
         }
 
-        .lottery-link {
-            margin: 6px 0;
-        }
-        .lottery-link a {
+        .anniversary-badge {
             display: inline-block;
             padding: 12px 32px;
             background: linear-gradient(135deg, #ff8a9e, #f8a4c8);
             color: #fff;
-            text-decoration: none;
             border-radius: 30px;
             font-size: 17px;
             font-weight: 600;
             letter-spacing: 2px;
             box-shadow: 0 4px 20px rgba(248, 130, 150, 0.4);
-            transition: all 0.3s ease;
-            animation: linkPulse 2s ease-in-out infinite;
+            margin: 4px 0 26px;
+            animation: badgePulse 2s ease-in-out infinite;
         }
-        .lottery-link a:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 6px 28px rgba(248, 130, 150, 0.55);
-        }
-        @keyframes linkPulse {
+        @keyframes badgePulse {
             0%, 100% { box-shadow: 0 4px 20px rgba(248, 130, 150, 0.4); }
             50% { box-shadow: 0 4px 30px rgba(248, 130, 150, 0.7); }
+        }
+
+        .memory-section {
+            margin: 6px 0 28px;
+        }
+        .section-title {
+            font-size: 18px;
+            color: #d4687c;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin-bottom: 16px;
+        }
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .memory-card {
+            background: rgba(255, 255, 255, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.42);
+            border-radius: 18px;
+            padding: 18px 14px;
+            min-height: 142px;
+            box-shadow: 0 6px 22px rgba(210, 140, 170, 0.12);
+        }
+        .memory-icon {
+            display: block;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .memory-card strong {
+            display: block;
+            color: #c85f78;
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .memory-card p {
+            color: #b87888;
+            font-size: 14px;
+            line-height: 1.8;
+            letter-spacing: 1px;
+        }
+        .promise-list {
+            display: grid;
+            gap: 10px;
+            margin: 0 auto 24px;
+            max-width: 620px;
+        }
+        .promise-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.36);
+            text-align: left;
+        }
+        .promise-item span {
+            flex: 0 0 auto;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 138, 158, 0.18);
+            color: #d4687c;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+        }
+        .promise-item p {
+            color: #b87888;
+            font-size: 15px;
+            line-height: 1.7;
+            letter-spacing: 1px;
+        }
+        .signature {
+            color: #c87890;
+            font-size: 17px;
+            line-height: 2;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+        }
+        .signature strong {
+            color: #d4687c;
         }
 
         @media (max-width: 600px) {
@@ -246,6 +327,23 @@
             }
             .blessing {
                 font-size: 16px;
+            }
+            .anniversary-badge {
+                padding: 11px 22px;
+                font-size: 15px;
+                line-height: 1.6;
+            }
+            .memory-grid {
+                grid-template-columns: 1fr;
+            }
+            .memory-card {
+                min-height: auto;
+            }
+            .promise-item {
+                align-items: flex-start;
+            }
+            .promise-item p {
+                font-size: 14px;
             }
             .heart-deco {
                 width: 22px;
@@ -285,8 +383,48 @@
 
             <div class="divider"></div>
 
-            <div class="lottery-link">
-                <a href="lottery.html">🎀 开启七周年惊喜 ~</a>
+            <div class="anniversary-badge">💗 今天，只写给小林和小玉</div>
+
+            <div class="memory-section">
+                <div class="section-title">七年里的浪漫</div>
+                <div class="memory-grid">
+                    <div class="memory-card">
+                        <span class="memory-icon">🌸</span>
+                        <strong>初见心动</strong>
+                        <p>从 2019.09.07 开始，世界多了一个彼此惦记的人。</p>
+                    </div>
+                    <div class="memory-card">
+                        <span class="memory-icon">🌙</span>
+                        <strong>并肩日常</strong>
+                        <p>一起走过晴天和雨天，把普通生活过成独家电影。</p>
+                    </div>
+                    <div class="memory-card">
+                        <span class="memory-icon">💌</span>
+                        <strong>继续相爱</strong>
+                        <p>七年不是终点，是下一段温柔故事的序章。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">往后的约定</div>
+            <div class="promise-list">
+                <div class="promise-item">
+                    <span>01</span>
+                    <p>继续把每一次见面、每一次牵手、每一句晚安都认真收藏。</p>
+                </div>
+                <div class="promise-item">
+                    <span>02</span>
+                    <p>继续在平淡日子里制造小惊喜，在忙碌时也记得拥抱彼此。</p>
+                </div>
+                <div class="promise-item">
+                    <span>03</span>
+                    <p>继续从第七年走向第八年、第十年，走向好多好多年。</p>
+                </div>
+            </div>
+
+            <div class="signature">
+                <strong>小林想对小玉说：</strong><br>
+                遇见你之后，每一天都有了被期待的理由。
             </div>
 
             <div class="divider"></div>
